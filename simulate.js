@@ -1,10 +1,37 @@
 const { chromium } = require('playwright');
+const readline = require('readline');
+const fs = require('fs');
+
+// Helper function to ask a question in the terminal
+function askQuestion(query) {
+  const rl = readline.createInterface({
+    input: process.stdin,
+    output: process.stdout,
+  });
+  return new Promise(resolve => rl.question(query, ans => {
+    rl.close();
+    resolve(ans);
+  }));
+}
 
 (async () => {
-  // Use a local folder inside your VS Code project to save your login session
-  const userDataDir = './claude-session-data';
+  // --- NEW: Multi-Account Selector ---
+  console.log("==========================================");
+  const accountInput = await askQuestion("Enter Account profile to load (e.g., A, B, C, D): ");
+  const accountName = accountInput.trim().toUpperCase() || "DEFAULT";
+  
+  // Dynamically set the folder based on the user's input
+  const userDataDir = `./claude-session-data-${accountName}`;
+  console.log("==========================================\n");
+  
+  if (!fs.existsSync(userDataDir)) {
+      console.log(`⚠️ No saved session found for Account [${accountName}].`);
+      console.log(`👉 You will be redirected to the login page. Your session will be saved automatically for next time.\n`);
+  } else {
+      console.log(`✅ Existing session found for Account [${accountName}]. Loading your saved login...\n`);
+  }
 
-  console.log("Step 1: Launching isolated persistent browser...");
+  console.log(`Step 1: Launching isolated browser for Account ${accountName}...`);
 
   const context = await chromium.launchPersistentContext(userDataDir, {
     headless: false,

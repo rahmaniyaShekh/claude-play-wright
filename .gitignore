@@ -1,8 +1,8 @@
 # Dependencies
 node_modules/
 
-# Claude session data
-claude-session-data/
+# Claude session data (one browser profile dir per account: -A, -B, ...)
+claude-session-data*/
 .claude/
 
 # Logs
